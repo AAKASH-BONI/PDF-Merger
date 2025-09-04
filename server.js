@@ -1,25 +1,47 @@
-const express = require('express')
-const path = require('path')
-const app = express()
-const multer  = require('multer')
-const {mergePdfs} = require('./merge')
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const { mergePdfs } = require("./merge");
 
-const upload = multer({ dest: 'uploads/' })
-app.use('/static', express.static('public'))
-const port = 3000
+const app = express();
+const upload = multer({ dest: "uploads/" });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, "templates/index.html"))
-})
+const PORT = process.env.PORT || 3000;
 
-app.post('/merge', upload.array('pdfs', 2), async (req, res, next)=> {
-  console.log(req.files)
-  let d = await mergePdfs(path.join(__dirname, req.files[0].path), path.join(__dirname, req.files[1].path))
-  res.redirect(`http://localhost:3000/static/${d}.pdf` )
-  // res.send({data: req.files})
-  // req.files is array of `photos` files
-  // req.body will contain the text fields, if there were any
-})
-app.listen(port, () => {
-  console.log(`Example app listening on port http://localhost:${port}`)
-})
+// Serve all files inside public/ (including merged PDFs)
+app.use(express.static("public"));
+
+// Serve index.html from templates folder
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "templates", "index.html"));
+});
+
+// Handle merge request
+app.post("/merge", upload.array("pdfs"), async (req, res) => {
+  try {
+    if (!req.files || req.files.length < 2) {
+      return res.status(400).send("⚠️ Please upload at least 2 PDF files");
+    }
+
+    // Generate a unique filename for output
+    const outputFilename = `${Date.now()}.pdf`;
+    const outputPath = path.join(__dirname, "public", outputFilename);
+
+    // Collect file paths of all uploaded PDFs
+    const filePaths = req.files.map(file => file.path);
+
+    // Merge PDFs
+    await mergePdfs(filePaths, outputPath);
+
+    // Redirect to the merged PDF
+    res.redirect(`/${outputFilename}`);
+  } catch (err) {
+    console.error("❌ Error merging PDFs:", err);
+    res.status(500).send("Internal Server Error: " + err.message);
+  }
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+});
