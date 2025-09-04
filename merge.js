@@ -32,16 +32,16 @@
 // module.exports = { mergePdfs };
 
 
-const PDFMerger = require('pdf-merger-js').default;
-const path = require('path');
+const PDFMerger = require("pdf-merger-js");
 
-const mergePdfs = async (p1, p2, outputPath) => {
+async function mergePdfs(pdf1, pdf2, outputPath) {
   const merger = new PDFMerger();
-  await merger.add(p1);
-  await merger.add(p2);
 
-  await merger.save(outputPath);  // save to given path
-  return outputPath;              // return file path
-};
+  await merger.add(pdf1); // first PDF
+  await merger.add(pdf2); // second PDF
+
+  await merger.save(outputPath); // save merged PDF
+  console.log(`✅ Merged PDF created: ${outputPath}`);
+}
 
 module.exports = { mergePdfs };
