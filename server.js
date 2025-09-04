@@ -6,29 +6,33 @@ const { mergePdfs } = require("./merge");
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-app.use("/static", express.static("public"));
+const PORT = process.env.PORT || 3000;
 
+// Serve everything inside public/ as static
+app.use(express.static("public"));
+
+// Route for index.html (from templates folder)
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "templates", "index.html"));
 });
 
+// Merge endpoint
 app.post("/merge", upload.array("pdfs", 2), async (req, res) => {
   if (req.files.length < 2) {
-    return res.send("Please upload at least 2 PDF files");
+    return res.send("⚠️ Please upload at least 2 PDF files");
   }
 
   const pdf1 = req.files[0].path;
   const pdf2 = req.files[1].path;
 
-  // create unique filename for each merged PDF
   const outputFilename = `${Date.now()}.pdf`;
   const outputPath = path.join(__dirname, "public", outputFilename);
 
   await mergePdfs(pdf1, pdf2, outputPath);
 
-  res.redirect(`/static/${outputFilename}`);
+  res.redirect(`/${outputFilename}`);
 });
 
-app.listen(3000, () => {
-  console.log("✅ Server running at http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
 });
