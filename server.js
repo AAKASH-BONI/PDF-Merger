@@ -20,7 +20,7 @@ app.post("/merge", upload.array("pdfs", 2), async (req, res) => {
   const pdf1 = req.files[0].path;
   const pdf2 = req.files[1].path;
 
-  // create unique filename
+  // create unique filename for each merged PDF
   const outputFilename = `${Date.now()}.pdf`;
   const outputPath = path.join(__dirname, "public", outputFilename);
 
@@ -30,5 +30,5 @@ app.post("/merge", upload.array("pdfs", 2), async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+  console.log("✅ Server running at http://localhost:3000");
 });
