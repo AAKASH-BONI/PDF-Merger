@@ -17,16 +17,31 @@
 
 
 
+// const PDFMerger = require('pdf-merger-js').default;
+
+// const mergePdfs = async (p1, p2) => {
+//   const merger = new PDFMerger();   // create new merger inside the function
+
+//   await merger.add(p1);  //merge all pages. parameter is the path to file and filename.
+//   await merger.add(p2);
+//   let d = new Date().getTime()
+//   await merger.save(`public/${d}.pdf`);  // save merged PDF
+//   return d
+// };
+
+// module.exports = { mergePdfs };
+
+
 const PDFMerger = require('pdf-merger-js').default;
+const path = require('path');
 
-const mergePdfs = async (p1, p2) => {
-  const merger = new PDFMerger();   // create new merger inside the function
-
-  await merger.add(p1);  //merge all pages. parameter is the path to file and filename.
+const mergePdfs = async (p1, p2, outputPath) => {
+  const merger = new PDFMerger();
+  await merger.add(p1);
   await merger.add(p2);
-  let d = new Date().getTime()
-  await merger.save(`public/${d}.pdf`);  // save merged PDF
-  return d
+
+  await merger.save(outputPath);  // save to given path
+  return outputPath;              // return file path
 };
 
 module.exports = { mergePdfs };
